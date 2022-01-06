@@ -6,9 +6,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import pprint
 
 import click
+
+from .save import save_dist_to_xlsx
 
 
 @click.group()
@@ -17,7 +18,7 @@ def main():
 
 
 @click.command()
-@click.option("--input", help="target file", required=True)
+@click.option("-i", "--input", help="target file", required=True)
 @click.option(
     "--max-bytes",
     type=click.IntRange(1000, 15000),
@@ -42,14 +43,12 @@ def file(
         data = fp.read(max_bytes)
         i = 0
         while i + length < len(data):
-            token = data[i : i + length]
+            token = data[i : i + length].hex().upper()
             cnt = tokens.get(token, 0)
             tokens[token] = cnt + 1
             i += length
 
-    pprint.pprint(
-        sorted(tokens.items(), key=lambda kv: kv[1], reverse=True)[:20],
-    )
+    save_dist_to_xlsx(tokens, input, "./xlsxs")
 
 
 main.add_command(file)
